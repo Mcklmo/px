@@ -3,7 +3,6 @@ let values = getNumerical(prodTitle.textContent)
 let formattedValues = applyFunctionToArrayElements(values, evaluateValue)
 let Product = {}
 addValuesToProduct(Product, formattedValues)
-console.log(Product)
 
 function applyFunctionToArrayElements(arr, fn) {
     let newArr = []
