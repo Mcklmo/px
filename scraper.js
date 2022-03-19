@@ -1,7 +1,43 @@
 let prodTitle = document.getElementById("productTitle")
+let values = getNumerical(prodTitle.textContent)
+let formattedValues = applyFunctionToArrayElements(values, evaluateValue)
+let Product = {}
+addValuesToProduct(Product, formattedValues)
+console.log(Product)
+
+function applyFunctionToArrayElements(arr, fn) {
+    let newArr = []
+    for (i of arr) {
+        newArr.push(fn(i))
+    }
+    return newArr
+}
+
+function addPriceToProduct(Product) {
+    let price = document.getElementsByClassName("a-offscreen")
+    console.log(price)
+}
+
+function addValuesToProduct(Product, formattedValues) {
+    let units = ["mcg", "mg", "g"]
+    let beverages = ["tabletten", "kapseln", "pulver"]
+    for (value of formattedValues) {
+        for (unit of units) {
+            if (value[1].toLowerCase() == unit) {
+                Product.units = value[0]
+                break 
+            }
+        }
+        for (beverage of beverages) {
+            if (value[1].toLowerCase() == beverage) {
+                Product.beverages = value[0]
+            }
+        }
+    }
+}
 
 // returns an array with each numerical and it's 
-// subsequent word (syntax: "1000 mcg")
+// subsequent word (syntax: "1000mcg string", "800 mg")
 function getNumerical(text) {
     let words = text.split(" ")
     let values = []
@@ -15,14 +51,7 @@ function getNumerical(text) {
     return values 
 }
 
-let values = getNumerical(prodTitle.textContent)
-for (value of values) {
-    console.log(evaluateValue(value))
-}
-
-// takes a string with a number and a string indicator
-// returns a number and a string, which is it's correct
-// identifier
+// splits string from number and returns as array like ["1000", "mcg"]
 function evaluateValue(value) {
     let values = value.split(" ")
     // case 1: the string is at the end of the number
