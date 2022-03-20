@@ -4,6 +4,7 @@ let formattedValues = applyFunctionToArrayElements(values, evaluateValue)
 let Product = {}
 addValuesToProduct(Product, formattedValues)
 
+// for each element in array arr, fn is applied and a new array is returned with the function applied to each element
 function applyFunctionToArrayElements(arr, fn) {
     let newArr = []
     for (i of arr) {
@@ -17,6 +18,8 @@ function addPriceToProduct(Product) {
     console.log(price)
 }
 
+// takes a product object and formatted values in syntax [["1000", "mcg"], ["800", "Tabletten"]]
+// and updates or adds to the product's "beverages", "units" and "unitType" fields
 function addValuesToProduct(Product, formattedValues) {
     let units = ["mcg", "mg", "g"]
     let beverages = ["tabletten", "kapseln", "pulver"]
@@ -24,6 +27,7 @@ function addValuesToProduct(Product, formattedValues) {
         for (unit of units) {
             if (value[1].toLowerCase() == unit) {
                 Product.units = value[0]
+                Product.unitType = value[1]
                 break 
             }
         }
