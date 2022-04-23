@@ -9,7 +9,7 @@ function applyFunctionToArrayElements(arr, fn) {
     let newArr = []
     for (i of arr) {
         newArr.push(fn(i))
-    }
+    } 
     return newArr
 }
 
