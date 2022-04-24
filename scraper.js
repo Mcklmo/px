@@ -1,42 +1,24 @@
 let prodTitle = document.getElementById("productTitle")
 let values = getNumerical(prodTitle.textContent)
-let formattedValues = applyFunctionToArrayElements(values, evaluateValue)
+
+// desc = "Chrom, 500 µg, hochdosiert, 180 Tabletten - für einen ausgeglichenen Blutzuckerspiegel. OHNE künstliche Zusätze, ohne Gentechnik. Vegan.produziert"
+// let values = getNumerical(desc)
+let cleanValues = []
+
+let i = 0
+for (value of values) {
+    cleanValues[i] = evaluateValue(value)
+    i++
+}
+
 let Product = {}
-addValuesToProduct(Product, formattedValues)
+addValuesToProduct(Product, cleanValues)
+addValueToProduct(Product)
+calculateIngredientValue(Product)
+seeProduct(Product)
 
-// for each element in array arr, fn is applied and a new array is returned with the function applied to each element
-function applyFunctionToArrayElements(arr, fn) {
-    let newArr = []
-    for (i of arr) {
-        newArr.push(fn(i))
-    } 
-    return newArr
-}
-
-function addPriceToProduct(Product) {
-    let price = document.getElementsByClassName("a-offscreen")
-    console.log(price)
-}
-
-// takes a product object and formatted values in syntax [["1000", "mcg"], ["800", "Tabletten"]]
-// and updates or adds to the product's "beverages", "units" and "unitType" fields
-function addValuesToProduct(Product, formattedValues) {
-    let units = ["mcg", "mg", "g"]
-    let beverages = ["tabletten", "kapseln", "pulver"]
-    for (value of formattedValues) {
-        for (unit of units) {
-            if (value[1].toLowerCase() == unit) {
-                Product.units = value[0]
-                Product.unitType = value[1]
-                break 
-            }
-        }
-        for (beverage of beverages) {
-            if (value[1].toLowerCase() == beverage) {
-                Product.beverages = value[0]
-            }
-        }
-    }
+function isUnit(char) {
+    return char != undefined && (char.toLowerCase().match(/[a-z]/i) || char.match("µ"));
 }
 
 // returns an array with each numerical and it's 
@@ -46,26 +28,101 @@ function getNumerical(text) {
     let values = []
     let i = 0
     for (word of words) {
-        if (! isNaN(word[0])) {
-            values.push(word + " " + words[i+1])       
+        if (!isNaN(word[0])) {
+            values.push(word + " " + words[i + 1])
         }
         i++
     }
-    return values 
+    return values
 }
 
 // splits string from number and returns as array like ["1000", "mcg"]
 function evaluateValue(value) {
-    let values = value.split(" ")
-    // case 1: the string is at the end of the number
-    if (isNaN(values[0].slice(-1)) == true) {
-        value = values[0]
-        for (i = 0; i<value.length; i++) {
-            if (isNaN(value[i])) {
-                return [value.substring(0, i), value.substring(i)]
+    let chars = value.split("")
+    let numbers = ""
+    let unit = ""
+
+    let i = 0
+    // finds all numbers in a sequence
+    for (char of chars) {
+
+        if (!isNaN(char)) {
+            numbers += char
+            if (isNaN(chars[i + 1])) { break }
+        }
+        i++
+    }
+    // finds all letters in a sequence
+    i = 0
+    charsWithoutNumbers = chars.slice(i)
+    for (char of charsWithoutNumbers) {
+
+        if (isUnit(char)) {
+            unit += char
+            if (!isUnit(charsWithoutNumbers[i + 1])) { break }
+        }
+        i++
+    }
+
+    return [numbers, unit]
+}
+
+function calculateIngredientValue(Product) {
+    switch (Product.unitType) {
+        case "mcg":
+        case "µg":
+            Product.unitType = "g"
+            Product.unitValue100g *= 100000
+            break
+        case "g":
+            Product.unitValue100g *= 100
+    }
+}
+
+function seeProduct(Product) {
+
+    for (key of Object.keys(Product)) {
+        console.log(key + ": " + Product[key])
+    }
+}
+
+// for each element in array arr, fn is applied and a new array is returned with the function applied to each element
+function applyFunctionToArrayElements(arr, fn) {
+    let newArr = []
+    for (i of arr) {
+        newArr.push(fn(i))
+    }
+    return newArr
+}
+
+function addValueToProduct(Product) {
+    let price = document.getElementById("sns-base-price").textContent
+    // let price = "12,99 € (874 liugsadf"
+    Product.unitValue100g = ""
+    for (char of price) {
+        Product.unitValue100g += char === " " ? "" : char === "," ? "." : char
+        if (isNaN(char) && char !== ",") { break }
+    }
+    Product.unitValue100g = (parseFloat(Product.unitValue100g) / Product.beverages) / Product.units
+}
+
+// takes a product object and formatted values in syntax [["1000", "mcg"], ["800", "Tabletten"]]
+// and updates or adds to the product's "beverages", "units" and "unitType" fields
+function addValuesToProduct(Product, formattedValues) {
+    let units = ["mcg", "mg", "g", "µg"]
+    let beverages = ["tabletten", "kapseln", "pulver", "stück"]
+    for (value of formattedValues) {
+        for (unit of units) {
+            if (value[1].toLowerCase() == unit) {
+                Product.units = parseFloat(value[0])
+                Product.unitType = value[1]
+                break
+            }
+        }
+        for (beverage of beverages) {
+            if (value[1].toLowerCase() == beverage) {
+                Product.beverages = parseFloat(value[0])
             }
         }
     }
-    // case 2: the number is already splittet correctly from the identifier
-    return [values[0], values[1]]
 }
