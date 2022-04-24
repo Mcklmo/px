@@ -12,7 +12,7 @@ for (value of values) {
 }
 
 let Product = {}
-addValuesToProduct(Product, cleanValues)
+addUnitValuePairsToProduct(Product, cleanValues)
 addValueToProduct(Product)
 calculateIngredientValue(Product)
 seeProduct(Product)
@@ -86,15 +86,6 @@ function seeProduct(Product) {
     }
 }
 
-// for each element in array arr, fn is applied and a new array is returned with the function applied to each element
-function applyFunctionToArrayElements(arr, fn) {
-    let newArr = []
-    for (i of arr) {
-        newArr.push(fn(i))
-    }
-    return newArr
-}
-
 function addValueToProduct(Product) {
     let price = document.getElementById("sns-base-price").textContent
     // let price = "12,99 € (874 liugsadf"
@@ -108,7 +99,7 @@ function addValueToProduct(Product) {
 
 // takes a product object and formatted values in syntax [["1000", "mcg"], ["800", "Tabletten"]]
 // and updates or adds to the product's "beverages", "units" and "unitType" fields
-function addValuesToProduct(Product, formattedValues) {
+function addUnitValuePairsToProduct(Product, formattedValues) {
     let units = ["mcg", "mg", "g", "µg"]
     let beverages = ["tabletten", "kapseln", "pulver", "stück"]
     for (value of formattedValues) {
