@@ -1,9 +1,9 @@
-import fetch from "node-fetch"
-getPageHTML()
-async function getPageHTML() {
-    page = await fetch("/https://www.amazon.de/Chrome-500-high-dose-tablets/dp/B07ZD85F28/ref=sr_1_3_sspa?crid=3CFA4OKR3BIDJ&keywords=chrom&qid=1650801946&sprefix=chrom%2Caps%2C112&sr=8-3-spons&spLa=ZW5jcnlwdGVkUXVhbGlmaWVyPUEzRkFNRVdHSkZTREhQJmVuY3J5cHRlZElkPUEwOTYzOTcyMllNSkxNQjc5QjM2NyZlbmNyeXB0ZWRBZElkPUEwMjcwODAwMTlNRExKTlRXTzNaMSZ3aWRnZXROYW1lPXNwX2F0ZiZhY3Rpb249Y2xpY2tSZWRpcmVjdCZkb05vdExvZ0NsaWNrPXRydWU&th=1")
-    console.log(page)
-}
+// import fetch from "node-fetch"
+// getPageHTML()
+// async function getPageHTML() {
+//     page = await fetch("/https://www.amazon.de/Chrome-500-high-dose-tablets/dp/B07ZD85F28/ref=sr_1_3_sspa?crid=3CFA4OKR3BIDJ&keywords=chrom&qid=1650801946&sprefix=chrom%2Caps%2C112&sr=8-3-spons&spLa=ZW5jcnlwdGVkUXVhbGlmaWVyPUEzRkFNRVdHSkZTREhQJmVuY3J5cHRlZElkPUEwOTYzOTcyMllNSkxNQjc5QjM2NyZlbmNyeXB0ZWRBZElkPUEwMjcwODAwMTlNRExKTlRXTzNaMSZ3aWRnZXROYW1lPXNwX2F0ZiZhY3Rpb249Y2xpY2tSZWRpcmVjdCZkb05vdExvZ0NsaWNrPXRydWU&th=1")
+//     console.log(page)
+// }
 
 let prodTitle = document.getElementById("productTitle")
 let values = getNumerical(prodTitle.textContent)
@@ -22,7 +22,9 @@ let Product = {}
 addUnitValuePairsToProduct(Product, cleanValues)
 addValueToProduct(Product)
 calculateIngredientValue(Product)
-seeProduct(Product)
+// seeProduct(Product)
+
+// send product to popup
 
 function isUnit(char) {
     return char != undefined && (char.toLowerCase().match(/[a-z]/i) || char.match("µ"));
