@@ -1,6 +1,6 @@
 const express = require("express")
 const app = express()
-const scraper = require(".scraper.js")
+// const scraper = require(".scraper.js")
 app.use(express.static(__dirname + "/"));
 app.use(express.json());
 
@@ -11,18 +11,19 @@ app.get("/", (req, res) => {
 // prompt keyword
 app.post("/keyword", async (req, res) => {
     let keyword = await (req.body.keyword)
-    let productList = await getProducts(keyword)
-    for (Product in productList) {
-        calculateValue(Product)
-    }
+    let productList = [keyword]
+    // productList = await getProducts(keyword)
+    // for (Product in productList) {
+    //     calculateValue(Product)
+    // }
     // display list, sorted by relevant value, on client, buttons are linked to the urls 
-    productList = productList.sort((a, b) => { return a.value - b.value })
-    res.json({ productList: productList })
+    // productList = productList.sort((a, b) => { return a.value - b.value })
+    res.json( JSON.stringify({productList: keyword}) )
 })
 
 function calculateValue(Product) {
-// scraper functionality here
-// eg scraper.isNumerical(whatever)
+    // scraper functionality here
+    // eg scraper.isNumerical(whatever)
 }
 
 async function getProducts(keyword) {

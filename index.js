@@ -14,11 +14,13 @@ function onload() {
                 keyword: keyword
             }),
         })
-        let productList = await res.json().productList // this is a sorted list of products, sorted by best value
-        let productDisplay = document.getElementById("productDisplay")
-        for (Product of productList) {
-            productDisplay.innerHTML+= `<button ref="${Product.url}">${productStringified(Product)}</button><br>`
-        }
+        let productList = await res.json() // this is a sorted list of products, sorted by best value
+        productList = JSON.parse(productList)
+        alert(productList.productList)
+        let productDisplay = document.getElementById("body")
+        // for (Product of productList) {
+        //     productDisplay.innerHTML+= `<button ref="${Product.url}">${productStringified(Product)}</button><br>`
+        // }
     })
 }
 
