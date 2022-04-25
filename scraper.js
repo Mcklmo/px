@@ -109,6 +109,9 @@ function addValueToProduct(Product) {
 // takes a product object and formatted values in syntax [["1000", "mcg"], ["800", "Tabletten"]]
 // and updates or adds to the product's "beverages", "units" and "unitType" fields
 function addUnitValuePairsToProduct(Product, formattedValues) {
+    // create array for all units / beverages found
+    // evaluate the units/beverages, so that ie. "860 mg grape seed extract with 600 mg OPC"
+    // becomes 600 mg,
     let units = ["mcg", "mg", "g", "µg"]
     let beverages = ["tabletten", "kapseln", "pulver", "stück"]
     for (value of formattedValues) {
