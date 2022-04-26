@@ -1,9 +1,6 @@
 
 let productTitle = document.getElementById("productTitle").innerHTML
 
-console.log(productTitle)
-
-
 let prodTitle = document.getElementById("productTitle")
 let values = getNumerical(prodTitle.textContent)
 
@@ -36,7 +33,9 @@ function getCurrency() {
     return document.getElementById("twister-plus-price-data-price-unit").value
 }
 function isUnit(char) {
-    return char != undefined && (char.toLowerCase().match(/[a-z]/i) || char.match("µ"));
+    if (char == undefined) {return}
+    char = char.toLowerCase()
+    return (char.match(/[a-z]/i) || char.match("µ")|| char.match("ü")|| char.match("ä")|| char.match("ö"));
 }
 
 // returns an array with each numerical and it's 
@@ -89,7 +88,6 @@ function calculateIngredientValue(Product) {
     switch (Product.unitType) {
         case "mcg":
         case "µg":
-            Product.unitType = "g"
             Product.unitValue100g *= 100000
             break
         case "g":

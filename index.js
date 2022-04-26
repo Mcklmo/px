@@ -5,8 +5,13 @@ function onload() {
     let submitButton = document.getElementById("submitKeyword")
     submitButton.addEventListener("click", async () => {
         let keyword = document.getElementById("keyword").value
+        console.log("happens")
+
         if (keyword == "") { return }
+        console.log("happens")
+
         // post keyword to server
+
         let res = await fetch("/keyword", {
             method: "POST",
             headers: { "Content-Type": "application/json" },

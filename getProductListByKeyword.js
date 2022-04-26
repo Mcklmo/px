@@ -1,8 +1,11 @@
 const express = require("express")
+const fetch = require("node-fetch");
 const app = express()
 // const scraper = require(".scraper.js")
 app.use(express.static(__dirname + "/"));
 app.use(express.json());
+
+
 
 app.get("/", (req, res) => {
     res.sendFile(__dirname + "/index.html");
@@ -18,8 +21,28 @@ app.post("/keyword", async (req, res) => {
     // }
     // display list, sorted by relevant value, on client, buttons are linked to the urls 
     // productList = productList.sort((a, b) => { return a.value - b.value })
-    res.json( JSON.stringify({productList: keyword}) )
+    queryAmazonProducts(keyword)
+    res.json(JSON.stringify({ productList: keyword }))
 })
+
+async function queryAmazonProducts(keyword) {
+    let html = ""
+    var r = await fetch(`https://www.amazon.de/gp/search?ie=UTF8&tag=px0f9-21&linkCode=ur2&linkId=cf2409fdca2c0cc99c03c088b75828dc&camp=1638&creative=6742&index=grocery&keywords=${keyword}`, {
+        method: "GET",
+    });
+
+    var data = await r.text();
+    if (!r.ok) {
+        console.log("not okay");
+        console.log(data);
+    } else {
+        console.log(data);
+    }
+    return 
+    
+    return html
+
+}
 
 function calculateValue(Product) {
     // scraper functionality here
