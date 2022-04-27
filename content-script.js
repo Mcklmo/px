@@ -2,7 +2,7 @@
 let productTitle = document.getElementById("productTitle").innerHTML
 
 let prodTitle = document.getElementById("productTitle")
-let values = getNumerical(prodTitle.textContent)
+let values = getNumerical(prodTitle.textContent) //array
 
 // desc = "Chrom, 500 µg, hochdosiert, 180 Tabletten - für einen ausgeglichenen Blutzuckerspiegel. OHNE künstliche Zusätze, ohne Gentechnik. Vegan.produziert"
 // let values = getNumerical(desc)
@@ -23,65 +23,73 @@ Product.productTitle = productTitle
 seeProduct(Product)
 
 // send product to popup
-window.addEventListener("load", function () {
-    console.log('window loaded, message sent to popup');
-    chrome.runtime.sendMessage({ Product: Product }, function (response) { console.log(response) });
+// window.addEventListener("load", function () {
+//     console.log('window loaded, message sent to popup');
+//     chrome.runtime.sendMessage({ Product: Product }, function (response) { console.log(response) });
 
-});
+// });
 function getCurrency() {
 
     return document.getElementById("twister-plus-price-data-price-unit").value
 }
 function isUnit(char) {
-    if (char == undefined) {return}
+    if (char == undefined) { return }
     char = char.toLowerCase()
-    return (char.match(/[a-z]/i) || char.match("µ")|| char.match("ü")|| char.match("ä")|| char.match("ö"));
+    return (char.match(/[a-z]/i) || char.match("µ") || char.match("ü") || char.match("ä") || char.match("ö"));
 }
 
 // returns an array with each numerical and it's 
 // subsequent word (syntax: "1000mcg string", "800 mg")
 function getNumerical(text) {
     let words = text.split(" ")
+    console.log(words)
     let values = []
+    let j = 0
     let i = 0
     for (word of words) {
-        if (!isNaN(word[0])) {
-            values.push(word + " " + words[i + 1])
+        if (i > words.length - 2) { break }
+        if (!isNaN(words[i][0])) {
+            values.push([])
+            values[j].push(words[i])
+            values[j].push(words[i + 1])
+            values[j].push(words[i + 2])
+            console.log("values[j]:",values[j], "; all:",values)
+            j++
         }
         i++
     }
+    console.log("values:",values)
     return values
 }
 
 // splits string from number and returns as array like ["1000", "mcg"]
 function evaluateValue(value) {
-    let chars = value.split("")
-    let numbers = ""
-    let unit = ""
-
-    let i = 0
-    // finds all numbers in a sequence
-    for (char of chars) {
-
-        if (!isNaN(char)) {
-            numbers += char
-            if (isNaN(chars[i + 1])) { break }
+    if (isNaN(value[0][value[0].length])) {
+        value[2] = value[1]
+        value[1] = ""
+        for (i = value[0].length; i > 0; i--) {
+            if (isNaN(value[0][i])) {
+                value[1] = value[0][i] + value[1]
+                console.log(typeof(value[0]))
+                value[0].slice(0,-1)
+            }
         }
-        i++
     }
-    // finds all letters in a sequence
-    i = 0
-    charsWithoutNumbers = chars.slice(i)
-    for (char of charsWithoutNumbers) {
+    return value
+}
+
+function sliceAndGetNextUnit(i, chars) {
+    let unit = ""
+    charsAfterSlice = chars.slice(i)
+    for (char of charsAfterSlice) {
 
         if (isUnit(char)) {
             unit += char
-            if (!isUnit(charsWithoutNumbers[i + 1])) { break }
+            if (!isUnit(charsAfterSlice[i + 1])) { i++; break }
         }
         i++
     }
-
-    return [numbers, unit]
+    return [unit, i]
 }
 
 function calculateIngredientValue(Product) {
@@ -102,14 +110,48 @@ function seeProduct(Product) {
     }
 }
 
+function stripStringToInt(string) {
+    let newString = ""
+    for (char of string) {
+        if (isNumber(char)) {
+            newString += char
+        }
+    }
+    return parseInt(newString)
+}
+
+function isNumber(char) {
+    if (typeof char !== 'string') {
+        return false;
+    }
+
+    if (char.trim() === '') {
+        return false;
+    }
+
+    return !isNaN(char);
+}
+
 function addValueToProduct(Product) {
-    let price = document.getElementById("sns-base-price").textContent
-    // let price = "12,99 € (874 liugsadf"
+    let price = ""
+    if (document.getElementById("sns-base-price") == undefined) {
+        a_price_whole_class = document.getElementsByClassName("a-price-whole")[0].textContent
+        if (a_price_whole_class == undefined) {
+            console.log("We're sorry, the price of this html has a different class or id than expected.")
+        }
+        else {
+            price = (stripStringToInt(a_price_whole_class) + "." + document.getElementsByClassName("a-price-fraction")[0].textContent)
+        }
+    }
+    else {
+        price = document.getElementById("sns-base-price").textContent
+    }
     Product.unitValue100g = ""
     for (char of price) {
+        if (isNaN(char) && char !== "," && char !== ".") { break }
         Product.unitValue100g += char === " " ? "" : char === "," ? "." : char
-        if (isNaN(char) && char !== ",") { break }
     }
+    Product.price = Product.unitValue100g
     Product.unitValue100g = (parseFloat(Product.unitValue100g) / Product.beverages) / Product.units
 }
 
@@ -127,7 +169,12 @@ function addUnitValuePairsToProduct(Product, formattedValues) {
             }
         }
         for (beverage of beverages) {
+            // console.log("expect:", beverage,", got:",value)
+
             if (value[1].toLowerCase() == beverage) {
+                Product.beverages = parseFloat(value[0])
+            }
+            else if (value[2].toLowerCase() == beverage) {
                 Product.beverages = parseFloat(value[0])
             }
         }
