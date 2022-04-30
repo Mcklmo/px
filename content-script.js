@@ -1,9 +1,8 @@
-
-let productTitle = document.getElementById("productTitle").innerHTML
-
-let prodTitle = document.getElementById("productTitle")
-let values = getNumerical(prodTitle.textContent) //array
-
+let prodTitle = document.getElementById("productTitle").textContent
+for (child of document.getElementsByClassName("a-unordered-list a-vertical a-spacing-mini")[0].children) {
+    prodTitle += (child.innerText)
+}
+let values = getNumerical(prodTitle) //array
 // desc = "Chrom, 500 µg, hochdosiert, 180 Tabletten - für einen ausgeglichenen Blutzuckerspiegel. OHNE künstliche Zusätze, ohne Gentechnik. Vegan.produziert"
 // let values = getNumerical(desc)
 let cleanValues = []
@@ -17,7 +16,7 @@ addUnitValuePairsToProduct(Product, cleanValues)
 addValueToProduct(Product)
 calculateIngredientValue(Product)
 Product.currency = getCurrency()
-Product.productTitle = productTitle
+Product.productTitle = prodTitle
 seeProduct(Product)
 
 // send product to popup
@@ -33,7 +32,7 @@ function getCurrency() {
 function isUnit(char) {
     if (char == undefined) { return }
     char = char.toLowerCase()
-    return (!isNaN(char) || char.match(/[a-z]/i) || char.match("µ") || char.match("ü") || char.match("ä") || char.match("ö"));
+    return (!isNaN(char) || char.match(/[a-z]/i) ||/* this is no mistake. The letters are different! console.log("µ" == "μ") */ char.match("µ") || char.match("μ") || char.match("ü") || char.match("ä") || char.match("ö"));
 }
 
 // for each number in the string: takes the number and two subsequent words as a string and
@@ -45,7 +44,7 @@ function getNumerical(text) {
     for (word of words) {
         if (i > words.length - 2) { break }
         if (!isNaN(words[i][0])) {
-            values.push(words[i] + " " + words[i + 1] + " " + words[i + 2])
+            values.push(words[i] + " " + words[i + 1] + " " + words[i + 2] + " " + words[i + 3])
         }
         i++
     }
@@ -55,7 +54,9 @@ function getNumerical(text) {
 function cleanValue(val) {
     let cleanVal = ""
     for (char of val) {
-        cleanVal += isUnit(char) ? char : ""
+        if (isUnit(char)) {
+            cleanVal += char
+        }
     }
     val = cleanVal
     return val
@@ -69,15 +70,17 @@ function evaluateValue(value) {
     }
 
     if (isNaN(value[0][value[0].length - 1])) {
+        value[3] = value[2]
         value[2] = value[1]
         value[1] = ""
-        for (j = value[0].length; j > 0; j--) {
+        for (j = value[0].length - 1; j > 0; j--) {
             if (isNaN(value[0][j])) {
                 value[1] = value[0][j] + value[1]
                 value[0].slice(0, -1)
             }
         }
     }
+
     return value
 }
 
@@ -101,8 +104,12 @@ function calculateIngredientValue(Product) {
         case "µg":
             Product.unitValue100g *= 100000
             break
+        case "mg":
+            Product.unitValue100g *= 10000
+            break
         case "g":
             Product.unitValue100g *= 100
+            break
     }
 }
 
@@ -162,7 +169,7 @@ function addValueToProduct(Product) {
 // and updates or adds to the product's "beverages", "units" and "unitType" fields
 function addUnitValuePairsToProduct(Product, formattedValues) {
     let units = ["mcg", "mg", "g", "µg"]
-    let beverages = ["tabletten", "kapseln", "pulver", "stück"]
+    let beverages = ["tabletten", "kapseln", "stück", "portionen"]
     for (value of formattedValues) {
         for (unit of units) {
             if (value[1].toLowerCase() == unit) {
@@ -177,6 +184,9 @@ function addUnitValuePairsToProduct(Product, formattedValues) {
                 Product.beverages = parseFloat(value[0])
             }
             else if (value[2].toLowerCase() == beverage) {
+                Product.beverages = parseFloat(value[0])
+            }
+            else if (value[3].toLowerCase() == beverage) {
                 Product.beverages = parseFloat(value[0])
             }
         }
