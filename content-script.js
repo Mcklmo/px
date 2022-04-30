@@ -8,10 +8,8 @@ let values = getNumerical(prodTitle.textContent) //array
 // let values = getNumerical(desc)
 let cleanValues = []
 
-let i = 0
-for (value of values) {
-    cleanValues[i] = evaluateValue(value)
-    i++
+for (i = 0; i < values.length; i++) {
+    cleanValues[i] = evaluateValue(values[i])
 }
 
 let Product = {}
@@ -35,43 +33,48 @@ function getCurrency() {
 function isUnit(char) {
     if (char == undefined) { return }
     char = char.toLowerCase()
-    return (char.match(/[a-z]/i) || char.match("µ") || char.match("ü") || char.match("ä") || char.match("ö"));
+    return (!isNaN(char) || char.match(/[a-z]/i) || char.match("µ") || char.match("ü") || char.match("ä") || char.match("ö"));
 }
 
-// returns an array with each numerical and it's 
-// subsequent word (syntax: "1000mcg string", "800 mg")
+// for each number in the string: takes the number and two subsequent words as a string and
+// return's all these combinations as an array
 function getNumerical(text) {
     let words = text.split(" ")
-    console.log(words)
     let values = []
-    let j = 0
     let i = 0
     for (word of words) {
         if (i > words.length - 2) { break }
         if (!isNaN(words[i][0])) {
-            values.push([])
-            values[j].push(words[i])
-            values[j].push(words[i + 1])
-            values[j].push(words[i + 2])
-            console.log("values[j]:",values[j], "; all:",values)
-            j++
+            values.push(words[i] + " " + words[i + 1] + " " + words[i + 2])
         }
         i++
     }
-    console.log("values:",values)
     return values
+}
+
+function cleanValue(val) {
+    let cleanVal = ""
+    for (char of val) {
+        cleanVal += isUnit(char) ? char : ""
+    }
+    val = cleanVal
+    return val
 }
 
 // splits string from number and returns as array like ["1000", "mcg"]
 function evaluateValue(value) {
-    if (isNaN(value[0][value[0].length])) {
+    value = value.split(" ")
+    for (j = 0; j < value.length; j++) {
+        value[j] = cleanValue(value[j])
+    }
+
+    if (isNaN(value[0][value[0].length - 1])) {
         value[2] = value[1]
         value[1] = ""
-        for (i = value[0].length; i > 0; i--) {
-            if (isNaN(value[0][i])) {
-                value[1] = value[0][i] + value[1]
-                console.log(typeof(value[0]))
-                value[0].slice(0,-1)
+        for (j = value[0].length; j > 0; j--) {
+            if (isNaN(value[0][j])) {
+                value[1] = value[0][j] + value[1]
+                value[0].slice(0, -1)
             }
         }
     }
@@ -169,7 +172,6 @@ function addUnitValuePairsToProduct(Product, formattedValues) {
             }
         }
         for (beverage of beverages) {
-            // console.log("expect:", beverage,", got:",value)
 
             if (value[1].toLowerCase() == beverage) {
                 Product.beverages = parseFloat(value[0])
